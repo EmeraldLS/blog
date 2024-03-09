@@ -1,16 +1,39 @@
 ---
+import MainLayout from "../layouts/MainLayout.astro";
+import { Image } from "astro:assets";
+import Search from "../components/Search.astro";
+import ArticleCard from "../components/ArticleCard.astro";
+import LatestArticle from "../components/LatestArticle.astro";
 
+import type { CollectionEntry } from "astro:content";
+import { getCollection } from "astro:content";
+import { HOMEPAGE_ARTICLES_LIMIT } from "../constants";
+
+const allArticles: CollectionEntry<"blog">[] = (
+  await getCollection("blog")
+).sort((a: CollectionEntry<"blog">, b: CollectionEntry<"blog">) => {
+  return b.data.pubDate.valueOf() - a.data.pubDate.valueOf();
+});
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<MainLayout title="Articles Stories & Tutorials for Tech Peeps">
+  <!-- Top Grid -->
+  <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
+    <div>
+      <h1 class="text-5xl font-bold mt-4 mb-8 leading-tight xl:text-6xl">
+        Articles, Stories & Tutorials for Tech People
+      </h1>
+
+      <Search />
+    </div>
+    <LatestArticle recentArticle={allArticles[0]} />
+  </div>
+  <div class="grid md:grid-cols-3 gap-5">
+    {
+      allArticles.slice(1, HOMEPAGE_ARTICLES_LIMIT).map((article) => {
+        return <ArticleCard article={article} />;
+      })
+    }
+  </div>
+  <!-- Main Grid -->
+</MainLayout>
